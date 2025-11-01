@@ -8,7 +8,7 @@ use futures_core::Stream;
 use tokio_postgres::{Error, Row, Transaction};
 
 pub struct CursorStream<'a> {
-    tx: Rc<Transaction<'a>>,
+    tx: Rc<&'a Transaction<'a>>,
     cursor: Rc<String>,
     batch_size: usize,
     future: Option<Pin<Box<dyn Future<Output = Result<Vec<Row>, Error>> + 'a>>>,
@@ -16,7 +16,7 @@ pub struct CursorStream<'a> {
 
 impl<'a> CursorStream<'a> {
     pub(crate) async fn new(
-        tx: Transaction<'a>,
+        tx: &'a Transaction<'a>,
         query: &str,
         batch_size: usize,
     ) -> Result<Self, Error> {

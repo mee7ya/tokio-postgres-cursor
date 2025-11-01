@@ -4,7 +4,7 @@ use crate::cursor::stream::CursorStream;
 
 pub trait TransactionExt {
     fn query_cursor<'a>(
-        self,
+        &'a self,
         query: &str,
         batch_size: usize,
     ) -> impl std::future::Future<Output = Result<CursorStream<'a>, Error>> + Send
@@ -14,7 +14,7 @@ pub trait TransactionExt {
 
 impl<'t> TransactionExt for Transaction<'t> {
     async fn query_cursor<'a>(
-        self,
+        &'a self,
         query: &str,
         batch_size: usize,
     ) -> Result<CursorStream<'a>, Error>
