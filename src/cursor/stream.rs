@@ -30,6 +30,12 @@ impl<'a> CursorStream<'a> {
             future: None,
         })
     }
+
+    pub async fn close(self) -> Result<u64, Error> {
+        self.tx
+            .execute(&format!("CLOSE {}", self.cursor), &[])
+            .await
+    }
 }
 
 impl<'a> Stream for CursorStream<'a> {
@@ -56,13 +62,6 @@ impl<'a> Stream for CursorStream<'a> {
             Poll::Ready(Ok(rows)) => {
                 self.future = None;
                 if rows.is_empty() {
-                    let tx = Rc::clone(&self.tx);
-                    let cursor = Rc::clone(&self.cursor);
-                    let _ = Box::pin(
-                        async move { tx.execute(&format!("CLOSE {}", cursor), &[]).await },
-                    )
-                    .as_mut()
-                    .poll(cx);
                     Poll::Ready(None)
                 } else {
                     Poll::Ready(Some(Ok(rows)))
