@@ -563,6 +563,8 @@ name = "tokio-postgres-cursor"
 version = "0.1.0"
 dependencies = [
  "futures-core",
+ "rand",
+ "tokio",
  "tokio-postgres",
 ]
 
