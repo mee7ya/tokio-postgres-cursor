@@ -17,7 +17,7 @@ pub struct CursorStream<'a> {
     tx: Arc<&'a Transaction<'a>>,
     cursor: Arc<String>,
     batch_size: usize,
-    future: Option<Pin<Box<dyn Future<Output = Result<Vec<Row>, Error>> + 'a>>>,
+    future: Option<Pin<Box<dyn Future<Output = Result<Vec<Row>, Error>> + Send + 'a>>>,
     done: bool,
 }
 
