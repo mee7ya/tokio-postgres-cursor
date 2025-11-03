@@ -10,7 +10,6 @@ use rand::{
 };
 
 use futures_core::Stream;
-use tokio::runtime::Handle;
 use tokio_postgres::{Error, Row, Transaction};
 
 /// A stream that fetches rows from a PostgreSQL cursor in batches.
@@ -24,15 +23,15 @@ pub struct CursorStream<'a> {
 
 impl<'a> CursorStream<'a> {
     /// Creates a new [`CursorStream`] and declares a cursor for the given query.
-    /// 
+    ///
     /// Parameters:
     /// - `tx`: A reference to the transaction in which the cursor will be declared.
     /// - `query`: The SQL query for which the cursor will be declared.
     /// - `batch_size`: The number of rows to fetch in each batch.
-    /// 
+    ///
     /// Errors:
-    /// - Propagates 
-    /// [`tokio_postgres::Error`](https://docs.rs/tokio-postgres/latest/tokio_postgres/error/struct.Error.html) 
+    /// - Propagates
+    /// [`tokio_postgres::Error`](https://docs.rs/tokio-postgres/latest/tokio_postgres/error/struct.Error.html)
     /// if the cursor declaration fails.
     pub(crate) async fn new(
         tx: &'a Transaction<'a>,
@@ -63,10 +62,10 @@ impl<'a> CursorStream<'a> {
     }
 
     /// Closes the cursor associated with this stream.
-    /// 
+    ///
     /// Errors:
-    /// - Propagates 
-    /// [`tokio_postgres::Error`](https://docs.rs/tokio-postgres/latest/tokio_postgres/error/struct.Error.html) 
+    /// - Propagates
+    /// [`tokio_postgres::Error`](https://docs.rs/tokio-postgres/latest/tokio_postgres/error/struct.Error.html)
     /// if the cursor closing fails
     pub async fn close(mut self) -> Result<u64, Error> {
         self.done = true;
@@ -85,8 +84,8 @@ impl<'a> Stream for CursorStream<'a> {
         }
 
         if self.future.is_none() {
-            let tx = Arc::clone(&self.tx);
-            let cursor = Arc::clone(&self.cursor);
+            let tx = self.tx.clone();
+            let cursor = self.cursor.clone();
             let batch_size = self.batch_size;
 
             let future = Box::pin(async move {
@@ -113,19 +112,6 @@ impl<'a> Stream for CursorStream<'a> {
                 self.future = None;
                 Poll::Ready(Some(Err(e)))
             }
-        }
-    }
-}
-
-impl Drop for CursorStream<'_> {
-    fn drop(&mut self) {
-        if !self.done {
-            Handle::current().block_on(async {
-                let _ = self
-                    .tx
-                    .execute(&format!("CLOSE {}", self.cursor), &[])
-                    .await;
-            });
         }
     }
 }
