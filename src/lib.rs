@@ -3,14 +3,20 @@
 //! # Example
 //! ```no_run
 //! use futures::StreamExt;
-//! 
+//!
 //! use tokio_postgres::{Error, NoTls};
 //! use tokio_postgres_cursor::TransactionExt;
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Error> {
 //!    let (mut client, connection) =
-//!         tokio_postgres::connect("host=localhost user=postgres", NoTls).await?;
+//!        tokio_postgres::connect("host=localhost user=postgres", NoTls).await?;
+//!
+//!    tokio::spawn(async move {
+//!        if let Err(e) = connection.await {
+//!            eprintln!("connection error: {}", e);
+//!        }
+//!    });
 //!
 //!    // Cursors require to be declared inside a transaction
 //!    let tx = client.transaction().await?;
