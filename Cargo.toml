@@ -1,7 +1,15 @@
 [package]
 name = "tokio-postgres-cursor"
 version = "0.1.0"
+authors = ["mee7ya"]
 edition = "2024"
+description = "PostgreSQL forward fetch cursor support for `tokio-postgres`"
+readme = "README.md"
+repository = "https://github.com/mee7ya/tokio-postgres-cursor"
+license-file = "LICENSE"
+keywords = ["async", "tokio", "postgresql"]
+categories = ["database"]
+exclude = [".github/", ".gitignore"]
 
 [dependencies]
 futures-core = "0.3.31"
